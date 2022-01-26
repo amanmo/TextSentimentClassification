@@ -59,7 +59,7 @@ class NaiveBayesTrainer:
 
         #Find Posterior Probabilities
         #save as number or percentage?
-        self.model = {'posterior': {}, 'prior': {
+        temp_model = {'posterior': {}, 'prior': {
             # 'negative': self.prior_negative,
             # 'positive': self.prior_positive,
             # 'deceptive': self.prior_deceptive,
@@ -71,15 +71,15 @@ class NaiveBayesTrainer:
         }}
         for i in range(len(self.data)):
             for word in set(self.data[i][0].split()):
-                if word not in self.model['posterior']:
-                    # self.model['posterior'][word] = {
+                if word not in temp_model['posterior']:
+                    # temp_model['posterior'][word] = {
                     #     "negative": 1 if self.data[i][1] == "negative" else 0,
                     #     "positive": 1 if self.data[i][1] == "positive" else 0,
                     #     "deceptive": 1 if self.data[i][2] == "deceptive" else 0,
                     #     "truthful": 1 if self.data[i][2] == "truthful" else 0,
                     #     "count": 1
                     # }
-                    self.model['posterior'][word] = {
+                    temp_model['posterior'][word] = {
                         "negative deceptive": 1 if self.data[i][1] == "negative" and self.data[i][2] == "deceptive" else 0,
                         "negative truthful": 1 if self.data[i][1] == "negative" and self.data[i][2] == "truthful" else 0,
                         "positive deceptive": 1 if self.data[i][1] == "positive" and self.data[i][2] == "deceptive" else 0,
@@ -87,19 +87,30 @@ class NaiveBayesTrainer:
                         "count": 1
                     }
                 else:
-                    # self.model['posterior'][word][self.data[i][1]] += 1
-                    # self.model['posterior'][word][self.data[i][2]] += 1
-                    self.model['posterior'][word][' '.join([self.data[i][1], self.data[i][2]])] += 1
+                    # temp_model['posterior'][word][self.data[i][1]] += 1
+                    # temp_model['posterior'][word][self.data[i][2]] += 1
+                    temp_model['posterior'][word][' '.join([self.data[i][1], self.data[i][2]])] += 1
                     
-                    self.model['posterior'][word]['count'] += 1
+                    temp_model['posterior'][word]['count'] += 1
 
-        #Smoothing (Feature Selection instead?)
-        for word in self.model['posterior']:
-            for feature in self.model['posterior'][word]:
+        #Smoothing
+        for word in temp_model['posterior']:
+            for feature in temp_model['posterior'][word]:
                 if feature != 'count':
-                    self.model['posterior'][word][feature] += 1
-            # self.model['posterior'][word]['count'] += 2
-            self.model['posterior'][word]['count'] += 4
+                    temp_model['posterior'][word][feature] += 1
+            # temp_model['posterior'][word]['count'] += 2
+            temp_model['posterior'][word]['count'] += 4
+
+        #Feature Selection
+        self.model = {'prior': temp_model['prior'], 'posterior': {}}
+        for word in temp_model['posterior']:
+            flag = False
+            for feature in temp_model['posterior'][word]:
+                if feature != 'count' and temp_model['posterior'][word][feature] / temp_model['posterior'][word]['count'] > 0.4:
+                    flag = True
+                    break
+            if flag:
+                self.model['posterior'][word] = temp_model['posterior'][word]
 
     def saveModel(self):
         'Function to save the trained Naive Bayes Classifier to a human-readable text file'
@@ -108,7 +119,7 @@ class NaiveBayesTrainer:
 
 if __name__ == '__main__':
     if len(argv) == 1:
-        loc = 'Sample'
+        loc = 'Training Data'
         # raise FileNotFoundError
     else:
         loc = argv[1]

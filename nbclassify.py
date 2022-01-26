@@ -7,11 +7,6 @@ from sys import argv
 
 from nbaux import preprocess
 
-# def normalize(prob_neg_dec, prob_neg_tru, prob_pos_dec, prob_pos_tru):
-#     denominator = prob_neg_dec + prob_neg_tru + prob_pos_dec + prob_pos_tru
-#     return prob_neg_dec/denominator, prob_neg_tru/denominator, prob_pos_dec/denominator, prob_pos_tru/denominator
-
-
 class NaiveBayesClassifier:
     '''
     Class that loads a trained model from nbmodel.txt and classifies test data
@@ -68,8 +63,6 @@ class NaiveBayesClassifier:
 
             # label_a = 'deceptive' if prob_dec > prob_tru else 'truthful'
             # label_b = 'negative' if prob_neg > prob_pos else 'positive'
-
-            # prob_neg_dec, prob_neg_tru, prob_pos_dec, prob_pos_tru = normalize(prob_neg_dec, prob_neg_tru, prob_pos_dec, prob_pos_tru)
             
             if prob_neg_dec == max(prob_neg_dec, prob_neg_tru, prob_pos_dec, prob_pos_tru):
                 label = 'deceptive negative'
