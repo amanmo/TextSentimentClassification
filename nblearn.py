@@ -44,11 +44,6 @@ class NaiveBayesTrainer:
         self.data = np.concatenate((negative_deceptive_data, negative_truthful_data, positive_deceptive_data, positive_truthful_data))
 
         #Defining Priors 
-        self.prior_negative = len(negative_deceptive_data) + len(negative_truthful_data) / len(self.data)
-        self.prior_positive = len(positive_deceptive_data) + len(positive_truthful_data) / len(self.data)
-        self.prior_deceptive = len(negative_deceptive_data) + len(positive_deceptive_data)/ len(self.data)
-        self.prior_truthful = len(negative_truthful_data) + len(positive_truthful_data) / len(self.data)
-
         self.prior_neg_dec = len(negative_deceptive_data) / len(self.data)
         self.prior_neg_tru = len(negative_truthful_data) / len(self.data)
         self.prior_pos_dec = len(positive_deceptive_data) / len(self.data)
@@ -61,10 +56,6 @@ class NaiveBayesTrainer:
         'Function to train the Naive Bayes Classifier on preprocessed training data'       
 
         temp_model = {'posterior': {}, 'prior': {
-            'negative': self.prior_negative,
-            'positive': self.prior_positive,
-            'deceptive': self.prior_deceptive,
-            'truthful': self.prior_truthful,
             'negative deceptive': self.prior_neg_dec,
             'negative truthful': self.prior_neg_tru,
             'positive deceptive': self.prior_pos_dec,
@@ -76,11 +67,6 @@ class NaiveBayesTrainer:
             for word in set(self.data[i][0].split()):
                 if word not in temp_model['posterior']:
                     temp_model['posterior'][word] = {
-                        'negative': 1 if self.data[i][1] == 'negative' else 0,
-                        'positive': 1 if self.data[i][1] == 'positive' else 0,
-                        'deceptive': 1 if self.data[i][2] == 'deceptive' else 0,
-                        'truthful': 1 if self.data[i][2] == 'truthful' else 0,
-                        'sample_count': 1,
                         'negative deceptive': 1 if self.data[i][1] == 'negative' and self.data[i][2] == 'deceptive' else 0,
                         'negative truthful': 1 if self.data[i][1] == 'negative' and self.data[i][2] == 'truthful' else 0,
                         'positive deceptive': 1 if self.data[i][1] == 'positive' and self.data[i][2] == 'deceptive' else 0,
@@ -88,35 +74,23 @@ class NaiveBayesTrainer:
                         'count': 1
                     }
                 else:
-                    temp_model['posterior'][word][self.data[i][1]] += 1
-                    temp_model['posterior'][word][self.data[i][2]] += 1
-                    temp_model['posterior'][word]['sample_count'] += 1
-
                     temp_model['posterior'][word][' '.join([self.data[i][1], self.data[i][2]])] += 1
                     temp_model['posterior'][word]['count'] += 1
 
         #Smoothing
         for word in temp_model['posterior']:
-            for feature in ['negative', 'positive', 'deceptive', 'truthful']:
-                temp_model['posterior'][word][feature] += 1
             for feature in ['negative deceptive', 'negative truthful', 'positive deceptive', 'positive truthful']:
                 temp_model['posterior'][word][feature] += 1
-            temp_model['posterior'][word]['sample_count'] += 2
             temp_model['posterior'][word]['count'] += 4
 
         #Feature Selection
         self.model = {'prior': temp_model['prior'], 'posterior': {}}
         for word in temp_model['posterior']:
             flag = False
-            for feature in ['negative', 'positive', 'deceptive', 'truthful']:
-                if temp_model['posterior'][word][feature] / temp_model['posterior'][word]['sample_count'] > 0.67:
+            for feature in ['negative deceptive', 'negative truthful', 'positive deceptive', 'positive truthful']:
+                if temp_model['posterior'][word][feature] / temp_model['posterior'][word]['count'] >= 0.5:
                     flag = True
                     break
-            if not flag:
-                for feature in ['negative deceptive', 'negative truthful', 'positive deceptive', 'positive truthful']:
-                    if temp_model['posterior'][word][feature] / temp_model['posterior'][word]['count'] > 0.4:
-                        flag = True
-                        break
             if flag:
                 self.model['posterior'][word] = temp_model['posterior'][word]
 

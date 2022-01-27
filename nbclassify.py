@@ -45,57 +45,32 @@ class NaiveBayesClassifier:
         for example in self.testData:
 
             path = example[1]
-            
-            prob_neg = log(self.model['prior']['negative'])
-            prob_pos = log(self.model['prior']['positive'])
-            prob_dec = log(self.model['prior']['deceptive'])
-            prob_tru = log(self.model['prior']['truthful'])
             prob_neg_dec = log(self.model['prior']['negative deceptive'])
             prob_neg_tru = log(self.model['prior']['negative truthful'])
             prob_pos_dec = log(self.model['prior']['positive deceptive'])
             prob_pos_tru = log(self.model['prior']['positive truthful'])
 
+            #Calculating Probabilities
             for word in example[0].split():
                 if word in self.model['posterior']:
-                    prob_neg += log(self.model['posterior'][word]['negative'] / self.model['posterior'][word]['sample_count'])
-                    prob_pos += log(self.model['posterior'][word]['positive'] / self.model['posterior'][word]['sample_count'])
-                    prob_dec += log(self.model['posterior'][word]['deceptive'] / self.model['posterior'][word]['sample_count'])
-                    prob_tru += log(self.model['posterior'][word]['truthful'] / self.model['posterior'][word]['sample_count'])
-
                     prob_neg_dec += log(self.model['posterior'][word]['negative deceptive'] / self.model['posterior'][word]['count'])
                     prob_neg_tru += log(self.model['posterior'][word]['negative truthful'] / self.model['posterior'][word]['count'])
                     prob_pos_dec += log(self.model['posterior'][word]['positive deceptive'] / self.model['posterior'][word]['count'])
                     prob_pos_tru += log(self.model['posterior'][word]['positive truthful'] / self.model['posterior'][word]['count'])
 
-            #Verifier for labels
-            check_prob_neg_dec = prob_neg * prob_dec
-            check_prob_neg_tru = prob_neg * prob_tru
-            check_prob_pos_dec = prob_pos * prob_dec
-            check_prob_pos_tru = prob_pos * prob_tru
-
-            #Normalizing the probabilities
+            #Normalizing the Probabilities
             prob_neg_dec, prob_neg_tru, prob_pos_dec, prob_pos_tru = normalize(prob_neg_dec, prob_neg_tru, prob_pos_dec, prob_pos_tru)
-            check_prob_neg_dec, check_prob_neg_tru, check_prob_pos_dec, check_prob_pos_tru = normalize(check_prob_neg_dec, check_prob_neg_tru, check_prob_pos_dec, check_prob_pos_tru)
 
-            #Classifying based on the probabilities
+            #Classifying based on Probabilities
             label = [None, None]
-            if prob_neg_dec == min(prob_neg_dec, prob_neg_tru, prob_pos_dec, prob_pos_tru) and min(check_prob_neg_dec, check_prob_neg_tru, check_prob_pos_dec, check_prob_pos_tru) in [check_prob_neg_dec, check_prob_neg_tru]:
+            if prob_neg_dec == min(prob_neg_dec, prob_neg_tru, prob_pos_dec, prob_pos_tru):
                 label = ['deceptive', 'negative']
-            elif prob_neg_tru == min(prob_neg_dec, prob_neg_tru, prob_pos_dec, prob_pos_tru) and min(check_prob_neg_dec, check_prob_neg_tru, check_prob_pos_dec, check_prob_pos_tru) in [check_prob_neg_dec, check_prob_neg_tru]:
+            elif prob_neg_tru == min(prob_neg_dec, prob_neg_tru, prob_pos_dec, prob_pos_tru):
                 label = ['truthful', 'negative']
-            elif prob_pos_dec == min(prob_neg_dec, prob_neg_tru, prob_pos_dec, prob_pos_tru) and min(check_prob_neg_dec, check_prob_neg_tru, check_prob_pos_dec, check_prob_pos_tru) in [check_prob_pos_dec, check_prob_pos_tru]:
+            elif prob_pos_dec == min(prob_neg_dec, prob_neg_tru, prob_pos_dec, prob_pos_tru):
                 label = ['deceptive', 'positive']
-            elif prob_pos_tru == min(prob_neg_dec, prob_neg_tru, prob_pos_dec, prob_pos_tru) and min(check_prob_neg_dec, check_prob_neg_tru, check_prob_pos_dec, check_prob_pos_tru) in [check_prob_pos_dec, check_prob_pos_tru]:
+            elif prob_pos_tru == min(prob_neg_dec, prob_neg_tru, prob_pos_dec, prob_pos_tru):
                 label = ['truthful', 'positive']
-            else:
-                if prob_neg_dec == min(prob_neg_dec, prob_neg_tru, prob_pos_dec, prob_pos_tru):
-                    label = ['truthful', 'negative']
-                elif prob_neg_tru == min(prob_neg_dec, prob_neg_tru, prob_pos_dec, prob_pos_tru):
-                    label = ['deceptive', 'negative']
-                elif prob_pos_dec == min(prob_neg_dec, prob_neg_tru, prob_pos_dec, prob_pos_tru):
-                    label = ['truthful', 'positive']
-                elif prob_pos_tru == min(prob_neg_dec, prob_neg_tru, prob_pos_dec, prob_pos_tru):
-                    label = ['deceptive', 'positive']
 
             self.output += [f"{' '.join(label)} {path}"]
 
