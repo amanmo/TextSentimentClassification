@@ -88,7 +88,7 @@ class NaiveBayesTrainer:
         for word in temp_model['posterior']:
             flag = False
             for feature in ['negative deceptive', 'negative truthful', 'positive deceptive', 'positive truthful']:
-                if temp_model['posterior'][word][feature] / temp_model['posterior'][word]['count'] >= 0.5:
+                if temp_model['posterior'][word][feature] / temp_model['posterior'][word]['count'] > 0.4:
                     flag = True
                     break
             if flag:
