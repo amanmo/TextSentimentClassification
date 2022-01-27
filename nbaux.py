@@ -37,7 +37,7 @@ def removeStopwords(data):
         for j in range(len(split_list)):
             if split_list[j] not in STOPWORDS:
                 ans += [split_list[j]]
-        data[i][0] = " ".join(ans)
+        data[i][0] = ' '.join(ans)
     return data
 
 def removeExcessWhitespace(data):
@@ -63,7 +63,7 @@ def stemText(data):
                     break
             if flag:
                 ans += [word]
-        data[i][0] = " ".join(ans)
+        data[i][0] = ' '.join(ans)
     return data
 
 def preprocess(data):
