@@ -42,6 +42,16 @@ class NaiveBayesClassifier:
 
         self.output = []
 
+        count_neg_dec = 0
+        count_neg_tru = 0
+        count_pos_dec = 0
+        count_pos_tru = 0
+        for word in self.model['posterior']:
+            count_neg_dec += self.model['posterior'][word]['negative deceptive']
+            count_neg_tru += self.model['posterior'][word]['negative truthful']
+            count_pos_dec += self.model['posterior'][word]['positive deceptive']
+            count_pos_tru += self.model['posterior'][word]['positive truthful']
+
         for example in self.testData:
 
             path = example[1]
@@ -53,10 +63,16 @@ class NaiveBayesClassifier:
             #Calculating Probabilities
             for word in example[0].split():
                 if word in self.model['posterior']:
-                    prob_neg_dec += log(self.model['posterior'][word]['negative deceptive'] / self.model['posterior'][word]['count'])
-                    prob_neg_tru += log(self.model['posterior'][word]['negative truthful'] / self.model['posterior'][word]['count'])
-                    prob_pos_dec += log(self.model['posterior'][word]['positive deceptive'] / self.model['posterior'][word]['count'])
-                    prob_pos_tru += log(self.model['posterior'][word]['positive truthful'] / self.model['posterior'][word]['count'])
+
+                    prob_neg_dec += log(self.model['posterior'][word]['negative deceptive'] / count_neg_dec)
+
+                    prob_neg_tru += log(self.model['posterior'][word]['negative truthful'] / count_neg_tru)
+
+                    prob_pos_dec += log(self.model['posterior'][word]['positive deceptive'] / 
+                    count_pos_dec)
+
+                    prob_pos_tru += log(self.model['posterior'][word]['positive truthful'] / 
+                    count_pos_tru)
 
             #Normalizing the Probabilities
             prob_neg_dec, prob_neg_tru, prob_pos_dec, prob_pos_tru = normalize(prob_neg_dec, prob_neg_tru, prob_pos_dec, prob_pos_tru)
