@@ -65,14 +65,9 @@ class NaiveBayesClassifier:
                 if word in self.model['posterior']:
 
                     prob_neg_dec += log(self.model['posterior'][word]['negative deceptive'] / count_neg_dec)
-
                     prob_neg_tru += log(self.model['posterior'][word]['negative truthful'] / count_neg_tru)
-
-                    prob_pos_dec += log(self.model['posterior'][word]['positive deceptive'] / 
-                    count_pos_dec)
-
-                    prob_pos_tru += log(self.model['posterior'][word]['positive truthful'] / 
-                    count_pos_tru)
+                    prob_pos_dec += log(self.model['posterior'][word]['positive deceptive'] / count_pos_dec)
+                    prob_pos_tru += log(self.model['posterior'][word]['positive truthful'] / count_pos_tru)
 
             #Normalizing the Probabilities
             prob_neg_dec, prob_neg_tru, prob_pos_dec, prob_pos_tru = normalize(prob_neg_dec, prob_neg_tru, prob_pos_dec, prob_pos_tru)
